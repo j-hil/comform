@@ -1,3 +1,5 @@
+import re
+
 import mdformat
 
 COL_MAX = 88
@@ -67,12 +69,24 @@ def fix_blocks(code_lines: list[CodeLine]) -> None:
         n += 1
 
 
+def fix_sections(code_lines: list[CodeLine]):
+
+    for n, line in enumerate(code_lines):
+        match = re.match(r"^# -+ (.+) -+ #", line)
+        if match:
+            prefix = "# --"
+            text = mdformat.text(match.group(1), options={"wrap": "no"}).strip()
+            suffix = "- #"
+            dashes = "-" * (COL_MAX - len(prefix) - len(text) - len(suffix))
+            code_lines[n] = prefix + f" {text} " + dashes + suffix + "\n"
+
+
 def main():
-    with open(R".\tests\examples\bad_align.py") as fh:
+    with open(R".\tests\examples\bad_sections.py") as fh:
         text_lines = fh.readlines()
     code_lines = [CodeLine(line) for line in text_lines]
 
-    fix_align(code_lines)
+    fix_sections(code_lines)
     print(*code_lines, sep="")
 
 
