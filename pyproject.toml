@@ -27,7 +27,7 @@ Homepage = "https://j-hil@github.com/j-hil/comform"
 path = "src/comform/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/jtools"]
+packages = ["src/comform"]
 
 [tool.coverage.run]
 branch = true
@@ -103,11 +103,12 @@ output-format = "colorized"
 
 [tool.flake8]
 # pyproject.toml support from package Flake8-pyproject
-ignore = [
-    # code   # what; why
+extend-ignore = [
+    # code  # what; why
+    "E203", # whitespace before ':'; compatability with black
     "E741", # ambiguous variable name 'l'; my font is unambigious
     "E402", # module level import not at top of file; handled (better) by pylint
-    "W503", # line break before binary operator; flake8 is just wrong
+    "E501", # line too long; handled by pylint
 ]
 max-line-length = 88
 
