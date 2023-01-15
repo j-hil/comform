@@ -71,6 +71,7 @@ dev = [
 [tool.mypy]
 strict = true
 show_error_codes = true
+exclude = "./examples/."
 
 
 [tool.pylint.basic]

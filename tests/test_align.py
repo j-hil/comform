@@ -15,7 +15,7 @@ thing = my_func(
 """
 
 
-def test_blocks():
+def test_blocks() -> None:
     with open(R".\tests\examples\bad_align.py") as fh:
         text_lines = fh.readlines()
     code_lines = [CodeLine(line) for line in text_lines]

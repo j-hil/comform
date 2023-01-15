@@ -14,7 +14,7 @@ print("hello, world")
 """
 
 
-def test_blocks():
+def test_blocks() -> None:
     with open(R".\tests\examples\bad_block.py") as fh:
         text_lines = fh.readlines()
     code_lines = [CodeLine(line) for line in text_lines]

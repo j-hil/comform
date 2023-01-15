@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 import mdformat
 
@@ -8,7 +9,15 @@ COL_MAX = 88
 class CodeLine(str):
     """Representation of a line of code."""
 
-    def __new__(cls, string) -> "CodeLine":
+    # NOTE: early declarations needed due to mypy issue. see:
+    # https://github.com/python/mypy/issues/1021
+    comment_col: int
+    prefix: str
+    comment: str
+    has_inline_comment: bool
+    has_own_line_comment: bool
+
+    def __new__(cls, string: str) -> "CodeLine":
         self = super().__new__(cls, string)
         # TODO: this is too simplistic - adapt for strings with "#" in them and other
         # such cases. Perhaps use https://docs.python.org/3/library/tokenize.html
@@ -22,11 +31,11 @@ class CodeLine(str):
         )
         return self
 
-    def move_comment(self, new_col):
+    def move_comment(self, new_col: int) -> "CodeLine":
         old_col = self.comment_col
         if new_col < old_col:
             raise ValueError("Tried to move a comment backward. Naughty")
-        return self.prefix + " " * (new_col - old_col) + "#" + self.comment
+        return CodeLine(self.prefix + " " * (new_col - old_col) + "#" + self.comment)
 
 
 def fix_align(code_lines: list[CodeLine]) -> None:
@@ -43,7 +52,8 @@ def fix_align(code_lines: list[CodeLine]) -> None:
 
 
 def fix_blocks(code_lines: list[CodeLine]) -> None:
-    batch = []
+    # TODO: an extra 'blank' comment is added after each block.
+    batch: list[CodeLine] = []
 
     n = 0
     while n < len(code_lines):
@@ -58,8 +68,10 @@ def fix_blocks(code_lines: list[CodeLine]) -> None:
             col = batch[0].comment_col
             text = "".join(line.comment for line in batch)
             text = mdformat.text(text, options={"number": True, "wrap": COL_MAX - col})
-            new_lines = text.split("\n")
-            new_lines = ["# " + l + "\n" if l else "#\n" for l in new_lines]
+            new_lines = [
+                CodeLine("# " + l + "\n") if l else CodeLine("#\n")
+                for l in text.split("\n")
+            ]
 
             a, b = batch_start_n, batch_start_n + len(batch)
             code_lines[a:b] = new_lines
@@ -69,7 +81,7 @@ def fix_blocks(code_lines: list[CodeLine]) -> None:
         n += 1
 
 
-def fix_sections(code_lines: list[CodeLine]):
+def fix_sections(code_lines: list[CodeLine]) -> None:
 
     for n, line in enumerate(code_lines):
         match = re.match(r"^# -+ (.+) -+ #", line)
@@ -78,17 +90,26 @@ def fix_sections(code_lines: list[CodeLine]):
             text = mdformat.text(match.group(1), options={"wrap": "no"}).strip()
             suffix = "- #"
             dashes = "-" * (COL_MAX - len(prefix) - len(text) - len(suffix))
-            code_lines[n] = prefix + f" {text} " + dashes + suffix + "\n"
+            code_lines[n] = CodeLine(prefix + f" {text} " + dashes + suffix + "\n")
 
 
-def main():
-    with open(R".\tests\examples\bad_sections.py") as fh:
+def run_all(filename: str | Path) -> str:
+
+    with open(filename) as fh:
         text_lines = fh.readlines()
     code_lines = [CodeLine(line) for line in text_lines]
 
     fix_sections(code_lines)
-    print(*code_lines, sep="")
+    fix_blocks(code_lines)
+    fix_align(code_lines)
+
+    return "".join(code_lines)
+
+
+def _main() -> None:
+    with open(R"C:\Users\jamie\Repos\comform\temp.py", "w") as fh:
+        fh.write(run_all(R".\tests\examples\bad_all.py"))
 
 
 if __name__ == "__main__":
-    main()
+    _main()
