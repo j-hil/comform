@@ -15,8 +15,10 @@ Most formatters do the following:
 thing = my_func(
     arg1,  # this is a comment
     woah_another_arg,  # this arg is really important
+    uncommented_arg,  #
+    arg4,  # a blank comment needed to keep align
     wow_its_really_unclear_what_each_arg_does,  # people should implement kwargs :/
-    arg4,  # last but not least
+    arg6,  # last but not least
 )
 ```
 
@@ -28,7 +30,7 @@ thing = my_func(
     arg1,                                       # this is a comment
     woah_another_arg,                           # this arg is really important
     uncommented_arg,                            #
-    arg4                                        # a blank comment needed to keep align
+    arg4,                                       # a blank comment needed to keep align
     wow_its_really_unclear_what_each_arg_does,  # people should implement kwargs :/
     arg6,                                       # last but not least
 )

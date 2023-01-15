@@ -49,3 +49,5 @@ repos:
         - mdformat-frontmatter
         - mdformat-footnote
         - mdformat-black
+
+exclude: tests/examples/.
