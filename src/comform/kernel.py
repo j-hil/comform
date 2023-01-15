@@ -81,7 +81,7 @@ def fix_blocks(code_lines: list[CodeLine]) -> None:
         n += 1
 
 
-def fix_sections(code_lines: list[CodeLine]) -> None:
+def fix_dividers(code_lines: list[CodeLine]) -> None:
 
     for n, line in enumerate(code_lines):
         match = re.match(r"^# -+ (.+) -+ #", line)
@@ -99,7 +99,7 @@ def run_all(filename: str | Path) -> str:
         text_lines = fh.readlines()
     code_lines = [CodeLine(line) for line in text_lines]
 
-    fix_sections(code_lines)
+    fix_dividers(code_lines)
     fix_blocks(code_lines)
     fix_align(code_lines)
 
