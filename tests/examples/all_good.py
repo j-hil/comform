@@ -2,7 +2,7 @@
 
 # In arithmetic and algebra, the cube of a number n is its third power, that is, the
 # result of multiplying three instances of n together -
-# https://en.wikipedia.org/wiki/Cube_(algebra)
+# `https://en.wikipedia.org/wiki/Cube_(algebra)`
 def cube_sum(
     start,  # start summing from here
     stop,   # stop summing here

@@ -1,9 +1,13 @@
 from comform.kernel import run_all
 
-TEST_KEY = "align"
+TEST_KEY = "all"
 
 
-def test_blocks() -> None:
+def test_all() -> None:
     with open(Rf".\tests\examples\{TEST_KEY}_good.py") as fh:
         correct_text = fh.read()
-    assert correct_text == run_all(Rf".\tests\examples\{TEST_KEY}_bad.py")
+    result = run_all(Rf".\tests\examples\{TEST_KEY}_bad.py")
+
+    # with open("temp.py", "w") as fh:
+    #     fh.write(result)
+    assert correct_text == result

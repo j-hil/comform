@@ -65,7 +65,7 @@ enough that I'll just make sure the behavior is sensible then leave it.
 I think the best way to deal with this is just to rely on existing formatters - I think
 that treating block comments as markdown text and using `mdformat` should work well and
 facilitate incredibly flexible comments by giving a way to include ascii diagrams, code
-snippets and more which won't be wrecked by `comform`
+snippets and more which won't be wrecked by `comform`.
 
 With wrapping 50 (unusually short, but good for demo) this gives:
 
@@ -79,6 +79,10 @@ With wrapping 50 (unusually short, but good for demo) this gives:
 #   information but its very poorly formatted
 # - oh dear
 ```
+
+Issue found: `mdformat` replaces underscores in some places it shouldn't, eg in
+`https://en.wikipedia.org/wiki/Cube_(algebra)`. This isn't a big issue since you can
+just wrap the link in backticks but that's annoying to have to remember.
 
 ### Section Dividers
 
@@ -94,6 +98,14 @@ I should respect the comment directives of other formatters/linters etc, eg
 
 I should also include `comforms` own 'ignore' comment direct add an ignore for comform,
 maybe just piggy-back off `black`'s `fmt: off`.
+
+Should I do anything special for commented out code - it would be expensive to check if
+a code block is valid python code and its not like its good to encourage commenting out
+code anyway. There are plenty of work arounds:
+
+1. Using the `fmt: off` or equivalent
+2. using in `if False: ...` block
+3. adding a triple ticks around the comment
 
 ## Part 2: CLI & Config file
 

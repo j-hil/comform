@@ -12,5 +12,8 @@ def test_align() -> None:
         text_lines = fh.readlines()
     code_lines = [CodeLine(line) for line in text_lines]
     fix_align(code_lines)
+    result = "".join(code_lines)
 
-    assert correct_text == "".join(code_lines)
+    # with open("temp.py", "w") as fh:
+    #     fh.write(result)
+    assert correct_text == result

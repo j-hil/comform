@@ -1,9 +1,10 @@
 import re
 from pathlib import Path
 
-import mdformat
+from mdformat import text as format_as_md
 
 COL_MAX = 88
+COMMENT_PREFIX_LEN = len("# ")
 
 
 class CodeLine(str):
@@ -22,13 +23,16 @@ class CodeLine(str):
         # TODO: this is too simplistic - adapt for strings with "#" in them and other
         # such cases. Perhaps use https://docs.python.org/3/library/tokenize.html
         # or similar
-        self.comment_col = self.index("#") if "#" in self else -1
+
+        # the logic surrounding `comment_col`, `prefix` and `comment` all rely on how
+        # python handles indexing & slicing for too large indices
+        self.comment_col = self.index("#") if "#" in self else len(self)
         self.prefix = self[: self.comment_col]
         self.comment = self[self.comment_col + 1 :]
-        self.has_inline_comment = (self.comment_col > 0) and (self.prefix.strip() != "")
-        self.has_own_line_comment = (self.comment_col == 0) and (
-            self.prefix.strip() == ""
-        )
+
+        self.has_inline_comment = (self.prefix.strip() != "") and self.comment
+        self.has_own_line_comment = (self.prefix.strip() == "") and self.comment
+
         return self
 
     def move_comment(self, new_col: int) -> "CodeLine":
@@ -52,7 +56,6 @@ def fix_align(code_lines: list[CodeLine]) -> None:
 
 
 def fix_blocks(code_lines: list[CodeLine]) -> None:
-    # TODO: an extra 'blank' comment is added after each block.
     batch: list[CodeLine] = []
 
     n = 0
@@ -60,16 +63,18 @@ def fix_blocks(code_lines: list[CodeLine]) -> None:
         code_line = code_lines[n]
 
         if code_line.has_own_line_comment:
-
             if not batch:
                 batch_start_n = n
             batch.append(code_line)
         elif batch:
             col = batch[0].comment_col
             text = "".join(line.comment for line in batch)
-            text = mdformat.text(text, options={"number": True, "wrap": COL_MAX - col})
+            text = format_as_md(
+                text,
+                options={"number": True, "wrap": COL_MAX - col - COMMENT_PREFIX_LEN},
+            ).strip()
             new_lines = [
-                CodeLine("# " + l + "\n") if l else CodeLine("#\n")
+                CodeLine(" " * col + "# " + l + "\n") if l else CodeLine("#\n")
                 for l in text.split("\n")
             ]
 
@@ -87,9 +92,11 @@ def fix_dividers(code_lines: list[CodeLine]) -> None:
         match = re.match(r"^# -+ (.+) -+ #", line)
         if match:
             prefix = "# --"
-            text = mdformat.text(match.group(1), options={"wrap": "no"}).strip()
+            text = format_as_md(match.group(1), options={"wrap": "no"}).strip()
             suffix = "- #"
-            dashes = "-" * (COL_MAX - len(prefix) - len(text) - len(suffix))
+            dashes = "-" * (
+                COL_MAX - len(prefix) - len(text) - len(suffix) - COMMENT_PREFIX_LEN
+            )
             code_lines[n] = CodeLine(prefix + f" {text} " + dashes + suffix + "\n")
 
 
@@ -107,7 +114,7 @@ def run_all(filename: str | Path) -> str:
 
 
 def _main() -> None:
-    with open(R"C:\Users\jamie\Repos\comform\temp.py", "w") as fh:
+    with open(R"\comform\temp.py", "w") as fh:
         fh.write(run_all(R".\tests\examples\bad_all.py"))
 
 
