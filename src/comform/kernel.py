@@ -1,24 +1,27 @@
 import re
+import tokenize
 from pathlib import Path
+from token import COMMENT
+from tokenize import TokenInfo
 
 from mdformat import text as format_as_md
 
-from comform.codeline import CodeLine
+from comform.codeline import CodeLine, CodeLine3, CodeLines
 
 COL_MAX = 88
 COMMENT_PREFIX_LEN = len("# ")
 
 
-def fix_align(code_lines: list[CodeLine]) -> None:
+def fix_align(code_lines: CodeLines) -> None:
 
-    batch = {}
+    batch: dict[int, CodeLine3] = {}
     for n, code_line in enumerate(code_lines):
         if code_line.has_inline_comment:
             batch[n] = code_line
         elif batch:
-            col = max(line.comment_col for line in batch.values())
-            for n, commented_code in batch.items():
-                code_lines[n] = commented_code.move_comment(col)
+            col = max(line._comment_col for line in batch.values())
+            for m, commented_code in batch.items():
+                commented_code.comment_col = col
             batch = {}
 
 
@@ -81,8 +84,28 @@ def run_all(filename: str | Path) -> str:
 
 
 def _main() -> None:
-    with open(R"\comform\temp.py", "w") as fh:
-        fh.write(run_all(R".\tests\examples\bad_all.py"))
+    path = Path(__file__).parent.parent.parent / "tests" / "examples" / "align_bad.py"
+    with tokenize.open(path) as fh:
+        tokens = tokenize.generate_tokens(fh.readline)
+
+        code_lines: list[list[TokenInfo]] = []
+        comment_token: TokenInfo | None = None
+
+        for token in tokens:
+            if token.type == COMMENT:
+                comment_token = token
+            elif token.string == "\n":
+                comment_col = (
+                    comment_token.start[1] if comment_token else len(token.line)
+                )
+                code_lines.append(CodeLine3(token.line, comment_col))
+                comment_token = None
+
+    print("all lines:", *code_lines, sep="\n")
+    # print(code_lines[6])
+
+    fix_align(code_lines)
+    print("post:", *code_lines, sep="\n")
 
 
 if __name__ == "__main__":
