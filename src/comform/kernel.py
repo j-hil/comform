@@ -4,9 +4,8 @@ from pathlib import Path
 from token import COMMENT
 from tokenize import TokenInfo
 
-from mdformat import text as format_as_md
-
 from comform.codeline import CodeLine, CodeLine3, CodeLines
+from comform.text import format_as_md
 
 COL_MAX = 88
 COMMENT_PREFIX_LEN = len("# ")
@@ -25,8 +24,8 @@ def fix_align(code_lines: CodeLines) -> None:
             batch = {}
 
 
-def fix_blocks(code_lines: list[CodeLine]) -> None:
-    batch: list[CodeLine] = []
+def fix_blocks(code_lines: CodeLines) -> None:
+    batch: list[CodeLine3] = []
 
     n = 0
     while n < len(code_lines):
@@ -38,14 +37,15 @@ def fix_blocks(code_lines: list[CodeLine]) -> None:
             batch.append(code_line)
         elif batch:
             col = batch[0].comment_col
+            wrap = COL_MAX - col - COMMENT_PREFIX_LEN
+
             text = "".join(line.comment for line in batch)
-            text = format_as_md(
-                text,
-                options={"number": True, "wrap": COL_MAX - col - COMMENT_PREFIX_LEN},
-            ).strip()
+            text = format_as_md(text, number=True, wrap=wrap).strip()
             new_lines = [
-                CodeLine(" " * col + "# " + l + "\n") if l else CodeLine("#\n")
-                for l in text.split("\n")
+                CodeLine3(" " * col + "# " + line + "\n", col + 1)
+                if line
+                else CodeLine3(" " * col + "#\n", col + 1)
+                for line in text.split("\n")
             ]
 
             a, b = batch_start_n, batch_start_n + len(batch)
