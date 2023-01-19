@@ -1,73 +1,71 @@
 import re
-import tokenize
 from pathlib import Path
-from token import COMMENT
-from tokenize import TokenInfo
 
-from comform.codeline import CodeLine3, CodeLines
+from comform.codeline import CodeLine, CodeLines
 from comform.text import format_as_md
 
 COL_MAX = 88
-COMMENT_PREFIX_LEN = len("# ")
 
 
 def fix_align(code_lines: CodeLines) -> None:
 
-    batch: dict[int, CodeLine3] = {}
-    for n, code_line in enumerate(code_lines):
+    batch: list[CodeLine] = []
+    for code_line in code_lines:
         if code_line.has_inline_comment:
-            batch[n] = code_line
+            batch.append(code_line)
         elif batch:
-            col = max(line._comment_col for line in batch.values())
-            for m, commented_code in batch.items():
-                commented_code.comment_col = col
-            batch = {}
+            max_col = max(line.hash_col for line in batch)  # type: ignore[type-var]
+            for commented_code in batch:
+                commented_code.hash_col = max_col
+            batch = []
 
 
 def fix_blocks(code_lines: CodeLines) -> None:
-    batch: list[CodeLine3] = []
 
-    n = 0
-    while n < len(code_lines):
-        code_line = code_lines[n]
+    block: list[CodeLine] = []
+    row = 0
+    while row < len(code_lines):
+        code_line = code_lines[row]
 
-        if code_line.has_own_line_comment:
-            if not batch:
-                batch_start_n = n
-            batch.append(code_line)
-        elif batch:
-            col = batch[0].comment_col
-            wrap = COL_MAX - col - COMMENT_PREFIX_LEN
+        # TODO: fails to consider the case of:
+        # ```python
+        # # blah blah
+        #       # blah blah
+        # ```
+        if code_line.has_lone_comment:
+            if not block:
+                batch_start_row = row
+            block.append(code_line)
+        elif block:
+            col = block[0].hash_col
+            assert col is not None
+            wrap = COL_MAX - col - len("# ")
 
-            text = "".join(line.comment for line in batch)
+            text = "".join(line.comment for line in block)
             text = format_as_md(text, number=True, wrap=wrap).strip()
             new_lines = [
-                CodeLine3(" " * col + "# " + line + "\n", col)
+                CodeLine(" " * col + f"# {line}\n", col)
                 if line
-                else CodeLine3(" " * col + "#\n", col)
+                else CodeLine(" " * col + "#\n", col)
                 for line in text.split("\n")
             ]
 
-            a, b = batch_start_n, batch_start_n + len(batch)
-            code_lines[a:b] = new_lines
-            n = batch_start_n + len(new_lines)
-            batch = []
+            code_lines[batch_start_row : batch_start_row + len(block)] = new_lines
+            row = batch_start_row + len(new_lines)
+            block = []
 
-        n += 1
+        # TODO: check this doesn't sometimes cause an off-by-one error
+        row += 1
 
 
 def fix_dividers(code_lines: CodeLines) -> None:
 
-    for n, line in enumerate(code_lines):
+    for line in code_lines:
         match = re.match(r" *-+([^-]+)-+ *#?", line.comment)
         if match:
-            prefix = " --"
             text = format_as_md(match.group(1), wrap="no").strip()
-            suffix = "- #"
-            dashes = "-" * (
-                COL_MAX - len(prefix) - len(text) - len(suffix) - COMMENT_PREFIX_LEN - 1
-            )
-            line.comment = prefix + f" {text} " + dashes + suffix + "\n"
+            dashes = "-" * (COL_MAX - len(text) - len(" -- " + " " + " #\n"))
+            line.comment = f" -- {text} {dashes} #\n"
 
 
 def run_all(filename: str | Path) -> str:
@@ -79,32 +77,3 @@ def run_all(filename: str | Path) -> str:
     fix_align(code_lines)
 
     return "".join(line.text for line in code_lines)
-
-
-def _main() -> None:
-    path = Path(__file__).parent.parent.parent / "tests" / "examples" / "align_bad.py"
-    with tokenize.open(path) as fh:
-        tokens = tokenize.generate_tokens(fh.readline)
-
-        code_lines: list[list[TokenInfo]] = []
-        comment_token: TokenInfo | None = None
-
-        for token in tokens:
-            if token.type == COMMENT:
-                comment_token = token
-            elif token.string == "\n":
-                comment_col = (
-                    comment_token.start[1] if comment_token else len(token.line)
-                )
-                code_lines.append(CodeLine3(token.line, comment_col))
-                comment_token = None
-
-    print("all lines:", *code_lines, sep="\n")
-    # print(code_lines[6])
-
-    fix_align(code_lines)
-    print("post:", *code_lines, sep="\n")
-
-
-if __name__ == "__main__":
-    _main()

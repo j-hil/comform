@@ -1,4 +1,6 @@
-from typing import Literal, overload
+"""Wrapper around `mdformat`."""
+
+from typing import Any, Literal, overload
 
 import mdformat
 
@@ -15,5 +17,12 @@ def format_as_md(
     ...
 
 
-def format_as_md(text: str, /, **kwargs) -> str:
+# duplicative signature necessary as mypy doesn't support only 1 overload. See
+# `https://github.com/python/mypy/issues/5047` for discussion.
+@overload
+def format_as_md(text: str, /, **kwargs: Any) -> str:
+    ...
+
+
+def format_as_md(text: str, /, **kwargs: Any) -> str:
     return mdformat.text(text, options={**kwargs})
