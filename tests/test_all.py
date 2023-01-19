@@ -8,6 +8,6 @@ def test_all() -> None:
         correct_text = fh.read()
     result = run_all(Rf".\tests\examples\{TEST_KEY}_bad.py")
 
-    # with open("temp.py", "w") as fh:
-    #     fh.write(result)
+    with open("temp.py", "w") as fh:
+        fh.write(result)
     assert correct_text == result

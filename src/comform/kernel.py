@@ -4,7 +4,7 @@ from pathlib import Path
 from token import COMMENT
 from tokenize import TokenInfo
 
-from comform.codeline import CodeLine, CodeLine3, CodeLines
+from comform.codeline import CodeLine3, CodeLines
 from comform.text import format_as_md
 
 COL_MAX = 88
@@ -42,9 +42,9 @@ def fix_blocks(code_lines: CodeLines) -> None:
             text = "".join(line.comment for line in batch)
             text = format_as_md(text, number=True, wrap=wrap).strip()
             new_lines = [
-                CodeLine3(" " * col + "# " + line + "\n", col + 1)
+                CodeLine3(" " * col + "# " + line + "\n", col)
                 if line
-                else CodeLine3(" " * col + "#\n", col + 1)
+                else CodeLine3(" " * col + "#\n", col)
                 for line in text.split("\n")
             ]
 
@@ -56,31 +56,29 @@ def fix_blocks(code_lines: CodeLines) -> None:
         n += 1
 
 
-def fix_dividers(code_lines: list[CodeLine]) -> None:
+def fix_dividers(code_lines: CodeLines) -> None:
 
     for n, line in enumerate(code_lines):
-        match = re.match(r"^# -+ (.+) -+ #", line)
+        match = re.match(r" *-+([^-]+)-+ *#?", line.comment)
         if match:
-            prefix = "# --"
-            text = format_as_md(match.group(1), options={"wrap": "no"}).strip()
+            prefix = " --"
+            text = format_as_md(match.group(1), wrap="no").strip()
             suffix = "- #"
             dashes = "-" * (
-                COL_MAX - len(prefix) - len(text) - len(suffix) - COMMENT_PREFIX_LEN
+                COL_MAX - len(prefix) - len(text) - len(suffix) - COMMENT_PREFIX_LEN - 1
             )
-            code_lines[n] = CodeLine(prefix + f" {text} " + dashes + suffix + "\n")
+            line.comment = prefix + f" {text} " + dashes + suffix + "\n"
 
 
 def run_all(filename: str | Path) -> str:
 
-    with open(filename) as fh:
-        text_lines = fh.readlines()
-    code_lines = [CodeLine(line) for line in text_lines]
+    code_lines = CodeLines(filename)
 
-    fix_dividers(code_lines)
     fix_blocks(code_lines)
+    fix_dividers(code_lines)
     fix_align(code_lines)
 
-    return "".join(code_lines)
+    return "".join(line.text for line in code_lines)
 
 
 def _main() -> None:

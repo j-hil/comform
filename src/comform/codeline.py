@@ -46,10 +46,11 @@ class CodeLine3:
         # TODO: rename to hash_col or similar
         self._comment_col = comment_col
 
-        self.prefix = self._text[: self._comment_col]
+        self._prefix = self._text[: self._comment_col]
         # TODO: or self.comment.string?
-        self.comment = self._text[self._comment_col + 1 :]
+        self._comment = self._text[self._comment_col + 1 :]
 
+        # TODO: make these functions so they don't need to be updated.
         self.has_inline_comment = (self.prefix.strip() != "") and self.comment
         # TODO: rename to has_blocky_comment or similar
         self.has_own_line_comment = (self.prefix.strip() == "") and self.comment
@@ -71,6 +72,19 @@ class CodeLine3:
             self.prefix + " " * (new_col - self._comment_col) + "#" + self.comment
         )
         self._comment_col = new_col
+
+    @property
+    def prefix(self) -> str:
+        return self._prefix
+
+    @property
+    def comment(self) -> str:
+        return self._comment
+
+    @comment.setter
+    def comment(self, value: str) -> None:
+        self._text = self._prefix + "#" + value
+        self._comment = value
 
     def __repr__(self):
         return self.__class__.__qualname__ + f"({self._text!r})"
