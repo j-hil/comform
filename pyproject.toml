@@ -18,6 +18,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dynamic = ["version"]
+dependencies = [
+    "mdformat>=0.7.16, <1"
+]
 
 
 [project.urls]
