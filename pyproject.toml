@@ -23,6 +23,9 @@ dynamic = ["version"]
 [project.urls]
 Homepage = "https://j-hil@github.com/j-hil/comform"
 
+[project.scripts]
+comform = "comform.__main__:main"
+
 [tool.hatch.version]
 path = "src/comform/__init__.py"
 
@@ -92,11 +95,12 @@ max-branches = 15      # (default = 12)
 max-locals = 20        # (default = 15)
 
 [tool.pylint.messages_control]
-# I decide if something needs a docstring, not pylint or pydocstyle :|
 disable = [
-    "missing-function-docstring",
-    "missing-class-docstring",
-    "missing-module-docstring",
+    "missing-function-docstring",  # I'll add doc strings if & when I feel it's useful
+    "missing-class-docstring",     #
+    "missing-module-docstring",    #
+    "fixme",                       # These are useful in development
+    "line-too-long",               # Let `black` handle it
 ]
 
 [tool.pylint.reports]
