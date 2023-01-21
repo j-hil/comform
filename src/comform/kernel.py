@@ -4,8 +4,6 @@ from pathlib import Path
 from comform.codeline import CodeLine, CodeLines
 from comform.text import format_as_md
 
-COL_MAX = 88
-
 
 def fix_align(code_lines: CodeLines) -> None:
 
@@ -14,13 +12,13 @@ def fix_align(code_lines: CodeLines) -> None:
         if code_line.has_inline_comment:
             batch.append(code_line)
         elif batch:
-            max_col = max(line.hash_col for line in batch)  # type: ignore[type-var]
+            max_hash_col = max(line.hash_col for line in batch)  # type: ignore[type-var]
             for commented_code in batch:
-                commented_code.hash_col = max_col
+                commented_code.hash_col = max_hash_col
             batch = []
 
 
-def fix_blocks(code_lines: CodeLines) -> None:
+def fix_blocks(code_lines: CodeLines, /, col_max: int) -> None:
 
     block: list[CodeLine] = []
     row = 0
@@ -39,7 +37,7 @@ def fix_blocks(code_lines: CodeLines) -> None:
         elif block:
             col = block[0].hash_col
             assert col is not None
-            wrap = COL_MAX - col - len("# ")
+            wrap = col_max - col - len("# ")
 
             text = "".join(line.comment for line in block)
             text = format_as_md(text, number=True, wrap=wrap).strip()
@@ -58,22 +56,22 @@ def fix_blocks(code_lines: CodeLines) -> None:
         row += 1
 
 
-def fix_dividers(code_lines: CodeLines) -> None:
+def fix_dividers(code_lines: CodeLines, /, col_max: int) -> None:
 
     for line in code_lines:
         match = re.match(r" *-+([^-]+)-+ *#?", line.comment)
         if match:
             text = format_as_md(match.group(1), wrap="no").strip()
-            dashes = "-" * (COL_MAX - len(text) - len(" -- " + " " + " #\n"))
+            dashes = "-" * (col_max - len(text) - len(" -- " + " " + " #\n"))
             line.comment = f" -- {text} {dashes} #\n"
 
 
-def run_all(filename: str | Path) -> str:
+def run_all(filename: str | Path, col_max: int = 88) -> str:
 
     code_lines = CodeLines(filename)
 
-    fix_blocks(code_lines)
-    fix_dividers(code_lines)
+    fix_blocks(code_lines, col_max)
+    fix_dividers(code_lines, col_max)
     fix_align(code_lines)
 
     return "".join(line.text for line in code_lines)

@@ -10,7 +10,7 @@ def test_blocks() -> None:
         correct_text = fh.read()
 
     code_lines = CodeLines(Rf".\tests\examples\{TEST_KEY}_bad.py")
-    fix_blocks(code_lines)
+    fix_blocks(code_lines, col_max=88)
     result = "".join(line.text for line in code_lines)
 
     # with open("temp.py", "w") as fh:
