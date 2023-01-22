@@ -10,7 +10,7 @@ license = { text = "GNU General Public License v3 (GPLv3)" }
 authors = [
     { name = "j-hil", email = "92876062+j-hil@users.noreply.github.com" },
 ]
-keywords = ["tools", "utils", "utilities"]
+keywords = ["automation", "formatter", "comments"]
 classifiers = [
     "Development Status :: 1 - Planning",
     "Operating System :: OS Independent",
@@ -18,8 +18,32 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dynamic = ["version"]
-dependencies = [
-    "mdformat>=0.7.16, <1"
+dependencies = ["mdformat>=0.7.16, <1"]
+
+[project.optional-dependencies]
+# maximum requirements for development
+dev = [
+    # testing
+    "pytest>=7.2.0, <8",
+    "coverage[toml]>=6.5.0, < 7",
+    # typing
+    "mypy>=0.971, <1",
+    # autoformatting
+    "pre-commit>=2.20.0, <3",
+    "black>=22.10.0, <23",
+    "isort>=5.10.1, <6",
+    "autoflake>=1.7.7, <2",
+    "pydocstringformatter>=0.7.2, <1",
+    # linting
+    "pylint>=2.15.2, <3",
+    "pydocstyle[toml]>=6.1.1, <7",
+    "Flake8-pyproject>=1.2.0, <2",
+    # build and release
+    "build>=0.9.0, <1",
+    "twine>=4.0.1, <5",
+    # ipython
+    "ipykernel>=6.17.0, <7",
+    "ipython>=8.8.0, <9",
 ]
 
 
@@ -47,32 +71,7 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "__debug__",
 ]
-dependencies = ["mdformat>=0.7.16, <1"]
-[project.optional-dependencies]
-# maximum requirements for development
-dev = [
-    # testing
-    "pytest>=7.2.0, <8",
-    "coverage[toml]>=6.5.0, < 7",
-    # typing
-    "mypy>=0.971, <1",
-    # autoformatting
-    "pre-commit>=2.20.0, <3",
-    "black>=22.10.0, <23",
-    "isort>=5.10.1, <6",
-    "autoflake>=1.7.7, <2",
-    "pydocstringformatter>=0.7.2, <1",
-    # linting
-    "pylint>=2.15.2, <3",
-    "pydocstyle[toml]>=6.1.1, <7",
-    "Flake8-pyproject>=1.2.0, <2",
-    # build and release
-    "build>=0.9.0, <1",
-    "twine>=4.0.1, <5",
-    # ipython
-    "ipykernel>=6.17.0, <7",
-    "ipython>=8.8.0, <9",
-]
+
 
 [tool.mypy]
 strict = true
@@ -99,11 +98,11 @@ max-locals = 20        # (default = 15)
 
 [tool.pylint.messages_control]
 disable = [
-    "missing-function-docstring",  # I'll add doc strings if & when I feel it's useful
-    "missing-class-docstring",     #
-    "missing-module-docstring",    #
-    "fixme",                       # These are useful in development
-    "line-too-long",               # Let `black` handle it
+    "missing-function-docstring", # I'll add doc strings if & when I feel it's useful
+    "missing-class-docstring",    #
+    "missing-module-docstring",   #
+    "fixme",                      # These are useful in development
+    "line-too-long",              # Let `black` handle it
 ]
 
 [tool.pylint.reports]
