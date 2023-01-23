@@ -2,7 +2,7 @@ repos:
 
   # comform
   - repo: .
-    rev: 0.0.1
+    rev: 0.0.2
     hooks:
     - id: comform
 

@@ -1,5 +1,5 @@
 from comform.codeline import CodeLines
-from comform.kernel import fix_dividers
+from comform.fixers import fix_dividers
 
 TEST_KEY = "dividers"
 

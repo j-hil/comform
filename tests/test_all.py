@@ -1,4 +1,4 @@
-from comform.kernel import run_all
+from comform.fixers import run_all
 
 TEST_KEY = "all"
 

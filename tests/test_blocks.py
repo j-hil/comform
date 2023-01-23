@@ -1,5 +1,5 @@
 from comform.codeline import CodeLines
-from comform.kernel import fix_blocks
+from comform.fixers import fix_blocks
 
 TEST_KEY = "blocks"
 

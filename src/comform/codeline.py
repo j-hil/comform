@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import tokenize
 from pathlib import Path
 from token import COMMENT
 from tokenize import TokenInfo
+from typing import List
 
 
 class CodeLine:
@@ -48,7 +51,8 @@ class CodeLine:
         return self.__class__.__qualname__ + f"({self.text!r})"
 
 
-class CodeLines(list[CodeLine]):
+# TODO: I don't think this class is really useful anymore.
+class CodeLines(List[CodeLine]):
     def __init__(self, path: Path | str):
         self.path = Path(path)
 
