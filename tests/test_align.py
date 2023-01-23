@@ -1,5 +1,5 @@
 from comform.codeline import CodeLines
-from comform.kernel import fix_align
+from comform.fixers import fix_align
 
 TEST_KEY = "align"
 

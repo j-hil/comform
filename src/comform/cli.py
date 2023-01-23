@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import sys
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
 
 import comform
 from comform.codeline import CodeLines
-from comform.kernel import fix_align, fix_blocks, fix_dividers
+from comform.fixers import fix_align, fix_blocks, fix_dividers
 
 
 def get_parser() -> ArgumentParser:
