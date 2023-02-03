@@ -1,3 +1,5 @@
+"""Allow running as `python -m comform`."""
+
 from comform.cli import run
 
 

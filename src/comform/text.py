@@ -1,4 +1,5 @@
 """Wrapper around `mdformat`."""
+
 from __future__ import annotations
 
 from typing import Literal
@@ -8,7 +9,6 @@ import mdformat
 
 def format_as_md(
     text: str,
-    /,
     *,
     wrap: int | Literal["keep", "no"] = "keep",
     number: bool = False,

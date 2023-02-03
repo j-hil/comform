@@ -1,16 +1,17 @@
+"""Command line interface and entry point `run` function."""
+
 from __future__ import annotations
 
 import sys
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
+from warnings import warn
 
 import comform
-from comform.codeline import CodeLines
-from comform.fixers import fix_align, fix_blocks, fix_dividers
+from comform.comments import apply_fixes, get_comments, get_fixes, to_chunks
 
 
 def get_parser() -> ArgumentParser:
-
     parser = ArgumentParser(
         prog="comform",
         description="Python Comment Conformity Formatter",
@@ -23,7 +24,7 @@ def get_parser() -> ArgumentParser:
         help="print the version number",
         version=comform.__version__,
     )
-    # TODO: check really doesn't do anything atm
+    # TODO: check, align and dividers are just for show now...
     parser.add_argument(
         "--check", "-c", action="store_true", help="do not write to files."
     )
@@ -54,36 +55,37 @@ def run(args: list[str] | None = None) -> None:
 
     options = get_parser().parse_args(args)
 
-    align = options.align
-    dividers = options.dividers
-    wrap = options.wrap
-    check = options.check
-
     altered = []
     for path_name in options.paths:
         path = Path(path_name)
         file_paths = path.glob("**/*.py") if path.is_dir() else [path]
 
         for file in file_paths:
-            # TODO: don't open file twice:
-            with open(file, encoding="utf8") as fh:
-                original = fh.read()
-            code_lines = CodeLines(file)
+            with open(file, "rb") as fp:
+                old_lines = fp.readlines()
+                fp.seek(0)
+                old_comments = list(get_comments(fp))
 
-            if align:
-                fix_align(code_lines)
-            if dividers:
-                fix_dividers(code_lines, col_max=wrap)
-            fix_blocks(code_lines, col_max=wrap)
-            result = "".join(line.text for line in code_lines)
+            if options.align or options.dividers:
+                warn("Options `align` & `dividers` are not yet implemented.")
 
-            if result == original:
+            chunks = to_chunks(old_comments)
+            fixes = get_fixes(chunks, col_max=options.wrap)
+            new_lines = apply_fixes(fixes, old_lines)
+
+            if new_lines == old_lines:
                 continue
 
-            altered.append(file)
-            if not check:
-                with open(file, "w", encoding="utf8") as fh:
-                    fh.write(result)
+            result = b"".join(new_lines)
+            altered.append(str(file))
 
-        header = "Failed files:" if check else "Altered Files:"
-        print(header, *(altered if altered else ["\b(None)"]), sep="\n")  # type: ignore[list-item]
+            if options.check:
+                print(f"*** Changes to {path_name}:", "-" * 99, sep="\n")
+                print(result.decode(), "", sep="\n")
+                continue
+
+            with open(file, "wb") as fp:
+                fp.write(result)
+
+    header = "*** Altered Files:" if not options.check else "*** Failed files:"
+    print(header, *(altered if altered else ["\b(None)"]), sep="\n")
