@@ -1,3 +1,5 @@
+"""Identify and apply fixes."""
+
 from __future__ import annotations
 
 from typing import List, TextIO, Tuple
@@ -48,8 +50,6 @@ def _apply_fixes(fixes: Fixes, old_lines: list[str]) -> list[str]:
             new_lines.extend(old_lines[old_chunk.start_lineno - 1 : end_lineno])
 
         prev_end_lineno = end_lineno
-
-    new_lines.append("")
     return new_lines
 
 

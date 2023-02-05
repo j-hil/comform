@@ -3,17 +3,44 @@
 from __future__ import annotations
 
 import sys
+from io import StringIO
 from pathlib import Path
+from typing import TextIO
 
-from comform.cli import get_options
+from comform.cli import Options, get_options
 from comform.fixes import fix_text
 
 __version__ = "0.0.2"
 
-# TODO: add fix_str(x: TextIO | str) function and give funcs in API docstrings
+
+def format_comments(
+    # NOTE: keep in line with `comform.cli`
+    text: str | TextIO,
+    align: bool = False,
+    dividers: bool = False,
+    wrap: int = 88,
+) -> list[str]:
+    """Format python comments in a string or text stream.
+
+    :param text: Text to be formatted
+    :param align: Align inline comments if true.
+    :param dividers: Expand/shrink 'divider' comments if true.
+    :param wrap: Column at which to wrap comments.
+    :return: Formatted text.
+    """
+    if isinstance(text, str):
+        text = StringIO(text)
+    options = Options(False, align, dividers, wrap, [])
+    new_lines, _ = fix_text(text, options)
+    return new_lines
 
 
 def run(args: list[str] | None = None) -> None:
+    """Entry point for `comform`.
+
+    :param args: Command line arguments, defaults to reading from `sys.argv[1:]` but can
+        be passed manually - see `comform -h` for usage.
+    """
     if args is None:
         args = sys.argv[1:]
 
