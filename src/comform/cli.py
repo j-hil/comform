@@ -1,4 +1,4 @@
-"""Command line interface and entry point `run` function."""
+"""Define the CLI."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ class Options:
     align: bool
     dividers: bool
     wrap: int
+    # TODO: remove paths
     paths: list[str]
 
 
