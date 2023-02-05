@@ -3,14 +3,8 @@
 import tempfile
 from io import StringIO
 
-from comform.comments import (
-    Chunk,
-    Comment,
-    apply_fixes,
-    get_comments,
-    get_fixes,
-    to_chunks,
-)
+from comform.comments import Chunk, Comment, get_comments, to_chunks
+from comform.fixes import _apply_fixes, _get_fixes
 
 SCRIPT_PRE = """\
 # Block comment line 1
@@ -58,8 +52,8 @@ FIXES = list(zip(CHUNKS, FIXED_CHUNKS))
 
 
 def test_comments_from_files() -> None:
-    with tempfile.TemporaryFile() as fp:
-        fp.write(SCRIPT_PRE.encode())
+    with tempfile.TemporaryFile(mode="r+") as fp:
+        fp.write(SCRIPT_PRE)
         fp.seek(0)
         comments = list(get_comments(fp))  # type: ignore[arg-type]
     assert comments == COMMENTS
@@ -70,11 +64,11 @@ def test_chunking() -> None:
 
 
 def test_chunk_fixer() -> None:
-    assert get_fixes(CHUNKS) == FIXES
+    assert _get_fixes(CHUNKS) == FIXES
 
 
 def test_apply_fixes() -> None:
-    new_lines = apply_fixes(FIXES, LINES_PRE)
+    new_lines = _apply_fixes(FIXES, LINES_PRE)
     assert SCRIPT_POST == "".join(new_lines)
 
 

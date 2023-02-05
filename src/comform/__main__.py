@@ -1,6 +1,6 @@
 """Allow running as `python -m comform`."""
 
-from comform.cli import run
+from comform import run
 
 
 def main() -> None:

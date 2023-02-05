@@ -6,7 +6,7 @@ Serves as an integration test for all the code parts.
 import tempfile
 from pathlib import Path
 
-from comform.cli import run
+from comform import run
 
 PATH_TO_PRE = Path(__file__).parent / "example_pre.py"
 PATH_TO_POST = Path(__file__).parent / "example_post.py"
