@@ -21,7 +21,7 @@ def test_comform_example() -> None:
         with open(temp_file, "w") as temp_fp:
             temp_fp.write(old_text)
 
-        run([str(temp_file)])
+        run(["--align", str(temp_file)])
 
         with open(PATH_TO_POST) as post_fp:
             expected_new_text = post_fp.read()

@@ -12,18 +12,23 @@ from comform.text import format_as_md
 Fixes = List[Tuple[Chunk, Chunk]]
 
 
-def _get_fixes(chunks: list[Chunk], /, col_max: int = 88) -> Fixes:
+def _get_fixes(chunks: list[Chunk], options: Options) -> Fixes:
     fixes = []
     for chunk in chunks:
-        if chunk.inline:
-            # currently do nothing to non-block comments
+        if chunk.inline and not options.align:
             fixes.append((chunk, chunk))
+            continue
+
+        if chunk.inline and options.align:
+            col_max = max(comment.hash_col for comment in chunk)
+            new_chunk = Chunk(Comment(c.text, c.lineno, col_max, True) for c in chunk)
+            fixes.append((chunk, new_chunk))
             continue
 
         text = format_as_md(
             text="\n".join(comment.text for comment in chunk),
             number=True,
-            wrap=col_max - chunk.hash_col - len("# "),
+            wrap=options.wrap - chunk.hash_col - len("# "),
         ).strip()
 
         new_chunk = Chunk(
@@ -47,7 +52,11 @@ def _apply_fixes(fixes: Fixes, old_lines: list[str]) -> list[str]:
         if not old_chunk.inline:
             new_lines.extend(f"#{comment.text}\n" for comment in new_chunk)
         else:
-            new_lines.extend(old_lines[old_chunk.start_lineno - 1 : end_lineno])
+            chunk_code_lines = old_lines[old_chunk.start_lineno - 1 : end_lineno]
+            new_lines.extend(
+                line[: old_c.hash_col].ljust(new_c.hash_col) + f"#{new_c.text}\n"
+                for line, old_c, new_c in zip(chunk_code_lines, old_chunk, new_chunk)
+            )
 
         prev_end_lineno = end_lineno
     return new_lines
@@ -62,6 +71,6 @@ def fix_text(stream: TextIO, options: Options) -> tuple[list[str], list[str]]:
         warn("Options `align` & `dividers` are not yet implemented.")
 
     chunks = to_chunks(old_comments)
-    fixes = _get_fixes(chunks, col_max=options.wrap)
+    fixes = _get_fixes(chunks, options)
     new_lines = _apply_fixes(fixes, old_lines)
     return new_lines, old_lines

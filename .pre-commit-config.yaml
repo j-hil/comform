@@ -56,4 +56,4 @@ repos:
         - mdformat-footnote
         - mdformat-black
 
-exclude: tests/examples/.
+exclude: example_.*
