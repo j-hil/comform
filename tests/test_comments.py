@@ -1,11 +1,11 @@
 """Unit tests for `comform.comments`."""
 
 import tempfile
-from io import BytesIO
+from io import StringIO
 
 from comform.comments import Comment, apply_fixes, get_comments, get_fixes, to_chunks
 
-SCRIPT_PRE = b"""\
+SCRIPT_PRE = """\
 # Block comment line 1
 # Block comment line 2
 
@@ -15,7 +15,7 @@ print("bye")  # inline comment 2
 # Final comment
 """
 
-SCRIPT_POST = b"""\
+SCRIPT_POST = """\
 # Block comment line 1 Block comment line 2
 
 print("hello, world")  # inline comment 1
@@ -24,7 +24,7 @@ print("bye")  # inline comment 2
 # Final comment
 """
 
-LINES_PRE = BytesIO(SCRIPT_PRE).readlines()
+LINES_PRE = StringIO(SCRIPT_PRE).readlines()
 
 COMMENTS = [
     Comment(" Block comment line 1", 1, 0, False),
@@ -48,7 +48,7 @@ FIXES = list(zip(CHUNKS, FIXED_CHUNKS))
 
 def test_comments_from_files() -> None:
     with tempfile.TemporaryFile() as fp:
-        fp.write(SCRIPT_PRE)
+        fp.write(SCRIPT_PRE.encode())
         fp.seek(0)
         comments = list(get_comments(fp))  # type: ignore[arg-type]
     assert comments == COMMENTS
@@ -64,7 +64,7 @@ def test_chunk_fixer() -> None:
 
 def test_apply_fixes() -> None:
     new_lines = apply_fixes(FIXES, LINES_PRE)
-    assert SCRIPT_POST == b"".join(new_lines)
+    assert SCRIPT_POST == "".join(new_lines)
 
 
 if __name__ == "__main__":

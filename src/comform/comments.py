@@ -91,7 +91,7 @@ def get_fixes(chunks: list[Chunk], /, col_max: int = 88) -> Fixes:
     return fixes
 
 
-def apply_fixes(fixes: Fixes, old_lines: list[bytes]) -> list[bytes]:
+def apply_fixes(fixes: Fixes, old_lines: list[str]) -> list[str]:
     new_lines = []
 
     prev_end_lineno = 0
@@ -104,11 +104,11 @@ def apply_fixes(fixes: Fixes, old_lines: list[bytes]) -> list[bytes]:
 
         new_lines.extend(old_lines[prev_end_lineno : start_lineno - 1])
         if not chunk_inline:
-            new_lines.extend(f"#{comment.text}\n".encode() for comment in new_chunk)
+            new_lines.extend(f"#{comment.text}\n" for comment in new_chunk)
         else:
             new_lines.extend(old_lines[start_lineno - 1 : end_lineno])
 
         prev_end_lineno = end_lineno
 
-    new_lines.append(b"")  # TODO: shouldn't be necessary?
+    new_lines.append("")  # TODO: shouldn't be necessary?
     return new_lines
