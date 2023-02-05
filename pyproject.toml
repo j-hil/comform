@@ -131,6 +131,7 @@ ignore = [
 [tool.black]
 skip-magic-trailing-comma = true
 preview = true
+extend-exclude = 'example_.*\.py'
 
 [tool.autoflake]
 recursive = true
