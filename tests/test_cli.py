@@ -1,12 +1,12 @@
 """Unit tests for `comform.cli`."""
 
 from argparse import Namespace
-from io import BytesIO
+from io import StringIO
 from unittest.mock import Mock, mock_open, patch
 
 from comform.cli import get_parser, run
 
-SCRIPT_POST = b"""\
+SCRIPT_POST = """\
 # Block comment line 1 Block comment line 2
 
 print("hello, world")  # inline comment 1
@@ -14,7 +14,7 @@ print("bye")  # inline comment 2
 
 # Final comment
 """
-LINES_POST = BytesIO(SCRIPT_POST).readlines()
+LINES_POST = StringIO(SCRIPT_POST).readlines()
 
 
 def test_get_parser() -> None:

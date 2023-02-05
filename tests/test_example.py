@@ -15,18 +15,18 @@ PATH_TO_POST = Path(__file__).parent / "example_post.py"
 def test_comform_example() -> None:
     temp_file = Path(tempfile.NamedTemporaryFile(delete=False).name)
     try:
-        with open(PATH_TO_PRE, "rb") as pre_fp:
+        with open(PATH_TO_PRE) as pre_fp:
             old_text = pre_fp.read()
 
-        with open(temp_file, "wb") as temp_fp:
+        with open(temp_file, "w") as temp_fp:
             temp_fp.write(old_text)
 
         run([str(temp_file)])
 
-        with open(PATH_TO_POST, "rb") as post_fp:
+        with open(PATH_TO_POST) as post_fp:
             expected_new_text = post_fp.read()
 
-        with open(temp_file, "rb") as temp_fp:
+        with open(temp_file) as temp_fp:
             actual_new_text = temp_fp.read()
 
         assert expected_new_text == actual_new_text

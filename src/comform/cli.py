@@ -62,9 +62,9 @@ def run(args: list[str] | None = None) -> None:
 
         for file in file_paths:
             with open(file, "rb") as fp:
-                old_lines = fp.readlines()
-                fp.seek(0)
                 old_comments = list(get_comments(fp))
+            with open(file, encoding="utf-8") as fp:
+                old_lines = fp.readlines()
 
             if options.align or options.dividers:
                 warn("Options `align` & `dividers` are not yet implemented.")
@@ -76,15 +76,15 @@ def run(args: list[str] | None = None) -> None:
             if new_lines == old_lines:
                 continue
 
-            result = b"".join(new_lines)
+            result = "".join(new_lines)
             altered.append(str(file))
 
             if options.check:
                 print(f"*** Changes to {path_name}:", "-" * 99, sep="\n")
-                print(result.decode(), "", sep="\n")
+                print(result, "", sep="\n")
                 continue
 
-            with open(file, "wb") as fp:
+            with open(file, "w", encoding="utf-8") as fp:
                 fp.write(result)
 
     header = "*** Altered Files:" if not options.check else "*** Failed files:"
