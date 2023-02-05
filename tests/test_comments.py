@@ -3,7 +3,14 @@
 import tempfile
 from io import StringIO
 
-from comform.comments import Comment, apply_fixes, get_comments, get_fixes, to_chunks
+from comform.comments import (
+    Chunk,
+    Comment,
+    apply_fixes,
+    get_comments,
+    get_fixes,
+    to_chunks,
+)
 
 SCRIPT_PRE = """\
 # Block comment line 1
@@ -35,12 +42,16 @@ COMMENTS = [
 ]
 
 
-CHUNKS = [[COMMENTS[0], COMMENTS[1]], [COMMENTS[2], COMMENTS[3]], [COMMENTS[4]]]
+CHUNKS = [
+    Chunk([COMMENTS[0], COMMENTS[1]]),
+    Chunk([COMMENTS[2], COMMENTS[3]]),
+    Chunk([COMMENTS[4]]),
+]
 
 FIXED_CHUNKS = [
-    [Comment(" Block comment line 1 Block comment line 2", 1, 0, False)],
-    [COMMENTS[2], COMMENTS[3]],
-    [COMMENTS[4]],
+    Chunk([Comment(" Block comment line 1 Block comment line 2", 1, 0, False)]),
+    Chunk([COMMENTS[2], COMMENTS[3]]),
+    Chunk([COMMENTS[4]]),
 ]
 
 FIXES = list(zip(CHUNKS, FIXED_CHUNKS))

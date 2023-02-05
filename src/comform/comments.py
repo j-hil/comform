@@ -6,22 +6,33 @@ import tokenize
 from dataclasses import dataclass
 from io import BufferedReader
 from token import COMMENT, ENCODING, INDENT, NEWLINE, NL
-from typing import Generator, List, Tuple
+from typing import Generator, Iterable, List, Tuple
 
 from comform.text import format_as_md
 
 
 @dataclass(frozen=True)
 class Comment:
-    __slots__ = "text", "hash_row", "hash_col", "inline"
+    __slots__ = "text", "lineno", "hash_col", "inline"
 
     text: str
-    hash_row: int  # TODO: rename to lineno
+    lineno: int
     hash_col: int
     inline: bool
 
 
-Chunk = List[Comment]
+class Chunk(List[Comment]):
+    def __init__(self, _iterable: Iterable[Comment]) -> None:
+        if not _iterable:
+            raise ValueError("Do not allow an empty `Chunk`.")
+        super().__init__(_iterable)
+
+        repr_comment = self[0]
+        self.start_lineno = repr_comment.lineno
+        self.hash_col = repr_comment.hash_col
+        self.inline = repr_comment.inline
+
+
 Fixes = List[Tuple[Chunk, Chunk]]
 
 
@@ -42,20 +53,20 @@ def to_chunks(comments: list[Comment]) -> list[Chunk]:
 
     chunks = []
     prev_comment = comments[0]
-    curr_chunk = [prev_comment]
+    curr_chunk = Chunk([prev_comment])
     i = 1
 
     while i < len(comments):
         curr_comment = comments[i]
 
         if (
-            curr_comment.hash_row == prev_comment.hash_row + 1
+            curr_comment.lineno == prev_comment.lineno + 1
             and prev_comment.inline == curr_comment.inline
         ):
             curr_chunk.append(curr_comment)
         else:
             chunks.append(curr_chunk)
-            curr_chunk = [curr_comment]
+            curr_chunk = Chunk([curr_comment])
 
         prev_comment = curr_comment
         i += 1
@@ -66,28 +77,24 @@ def to_chunks(comments: list[Comment]) -> list[Chunk]:
 
 def get_fixes(chunks: list[Chunk], /, col_max: int = 88) -> Fixes:
     fixes = []
-    for old_chunk in chunks:
-        chunk_inline = old_chunk[0].inline
-        chunk_col = old_chunk[0].hash_col
-        chunk_row = old_chunk[0].hash_row
-
-        if chunk_inline:
+    for chunk in chunks:
+        if chunk.inline:
             # currently do nothing to non-block comments
-            fixes.append((old_chunk, old_chunk))
+            fixes.append((chunk, chunk))
             continue
 
         text = format_as_md(
-            text="\n".join(comment.text for comment in old_chunk),
+            text="\n".join(comment.text for comment in chunk),
             number=True,
-            wrap=col_max - chunk_col - len("# "),
+            wrap=col_max - chunk.hash_col - len("# "),
         ).strip()
 
-        new_chunk = [
-            Comment(f" {line}" if line else "", chunk_row + j, chunk_col, False)
+        new_chunk = Chunk(
+            Comment(f" {line}".rstrip(), chunk.start_lineno + j, chunk.hash_col, False)
             for j, line in enumerate(text.split("\n"))
-        ]
+        )
 
-        fixes.append((old_chunk, new_chunk))
+        fixes.append((chunk, new_chunk))
     return fixes
 
 
@@ -97,18 +104,15 @@ def apply_fixes(fixes: Fixes, old_lines: list[str]) -> list[str]:
     prev_end_lineno = 0
     for fix in fixes:
         old_chunk, new_chunk = fix
+        end_lineno = old_chunk[-1].lineno
 
-        start_lineno = old_chunk[0].hash_row
-        end_lineno = old_chunk[-1].hash_row
-        chunk_inline = old_chunk[0].inline
-
-        new_lines.extend(old_lines[prev_end_lineno : start_lineno - 1])
-        if not chunk_inline:
+        new_lines.extend(old_lines[prev_end_lineno : old_chunk.start_lineno - 1])
+        if not old_chunk.inline:
             new_lines.extend(f"#{comment.text}\n" for comment in new_chunk)
         else:
-            new_lines.extend(old_lines[start_lineno - 1 : end_lineno])
+            new_lines.extend(old_lines[old_chunk.start_lineno - 1 : end_lineno])
 
         prev_end_lineno = end_lineno
 
-    new_lines.append("")  # TODO: shouldn't be necessary?
+    new_lines.append("")
     return new_lines
