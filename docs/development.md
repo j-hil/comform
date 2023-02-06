@@ -22,12 +22,13 @@ easily be done through enabling `pre-commit` hooks (run `pre-commit install`).
 There is no formal release process - I do a release when I need access to an updated
 version of the code through PyPI. The process for a release is:
 
-1. Pick the commit to be published - it must be on the `main` branch.
-2. Tag the commit with the version number with `git tag commit_hash -a version_no`
+1. Make sure the version number is set correctly in the code; bump if necessary.
+2. Pick the commit to be published - it must be on the `main` branch.
+3. Tag the commit with the version number with `git tag commit_hash -a version_no`
    including any relevant notes in the tag text.
-3. Build the package with `python -m build`
-4. Install the build with `pip install .\dist\zip_or_tar_gz_file_just_built` and test.
-5. Publish with `python -m twine upload dist/*`.
+4. Build the package with `python -m build`
+5. Install the build with `pip install .\dist\zip_or_tar_gz_file_just_built` and test.
+6. Publish with `python -m twine upload dist/*`.
 
 ## Testing
 

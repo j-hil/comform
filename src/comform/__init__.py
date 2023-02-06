@@ -10,7 +10,7 @@ from typing import TextIO
 from comform.cli import Options, get_options
 from comform.fixes import fix_text
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 
 def format_comments(
