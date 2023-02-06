@@ -31,7 +31,6 @@ def get_options(args: list[str]) -> Options:
         help="print the version number",
         version=comform.__version__,
     )
-    # TODO: check, align and dividers are just for show now...
     parser.add_argument(
         "--check", "-c", action="store_true", help="do not write to files."
     )
