@@ -3,6 +3,8 @@
 Use in regression testing.
 """
 
+# - Intro -
+
 # Python (programming language) - source: `https://en.wikipedia.org/wiki/Python_(programming_language)`.
 #
 # Python is   a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation.
@@ -53,6 +55,8 @@ root1 = quadratic_root(6, 23 - 1j, 23 + 1j)
 root2 = quadratic_root(6, 23 - 1j, 23 + 1j, lesser=True)
 assert isclose(root1, -(3 + 1j) / 2)
 assert isclose(root2, (2j - 7) / 3)
+
+# - Maths -------------------------------------------------------------------------------------- #
 
 # Excerpt from `https://en.wikipedia.org/wiki/Quadratic_formula`:
 #

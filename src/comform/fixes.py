@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+import re
 from typing import List, TextIO, Tuple
-from warnings import warn
 
 from comform.cli import Options
 from comform.comments import Chunk, Comment, get_comments, to_chunks
@@ -24,6 +24,16 @@ def _get_fixes(chunks: list[Chunk], options: Options) -> Fixes:
             new_chunk = Chunk(Comment(c.text, c.lineno, col_max, True) for c in chunk)
             fixes.append((chunk, new_chunk))
             continue
+
+        if len(chunk) == 1 and not chunk.inline and options.dividers:
+            comment = chunk[0]
+            match = re.match(r"^ *-*(.+?)-+ *#?$", comment.text)
+            if match:
+                text = format_as_md(match.group(1), wrap="no").strip()
+                text = f" -- {text} ".ljust(options.wrap - len("# #"), "-") + " #"
+                new_comment = Comment(text, comment.lineno, comment.hash_col, False)
+                fixes.append((chunk, Chunk([new_comment])))
+                continue
 
         text = format_as_md(
             text="\n".join(comment.text for comment in chunk),
@@ -66,9 +76,6 @@ def fix_text(stream: TextIO, options: Options) -> tuple[list[str], list[str]]:
     old_comments = list(get_comments(stream))
     stream.seek(0)
     old_lines = stream.readlines()
-
-    if options.align or options.dividers:
-        warn("Options `align` & `dividers` are not yet implemented.")
 
     chunks = to_chunks(old_comments)
     fixes = _get_fixes(chunks, options)
