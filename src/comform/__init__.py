@@ -12,6 +12,11 @@ from comform.fixes import fix_text
 
 __version__ = "0.0.3"
 
+# TODO:
+# * other todos
+# * format one line comments with mdformat
+# * don't change non python files
+
 
 def format_comments(
     # NOTE: keep in line with `comform.cli`

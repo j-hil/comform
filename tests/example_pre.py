@@ -23,9 +23,9 @@ Use in regression testing.
 
 # Built-in types:
 truth = True  # Use `True` or `False`
-hello_world = bytearray(b"hello, world")  # Mutable sequence of bytes
-hello_there = bytes(b"hello there!")  # Immutable sequence of bytes
-north_west = 2 + 2j  # Complex numbers
+hello_world = bytearray(b"hello, world")  # Mutable       sequence of bytes
+hello_there = bytes(b"hello there!")  # Immutable    sequence of     bytes
+north_west = 2 + 2j  # Complex     numbers
 # etc
 
 #   Python supports gradual typing. Python's syntax allows specifying
