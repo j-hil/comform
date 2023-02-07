@@ -7,7 +7,7 @@ from typing import List, TextIO, Tuple
 
 from comform.cli import Options
 from comform.comments import Chunk, Comment, get_comments, to_chunks
-from comform.text import format_as_md
+from comform.text import format_as_md, format_line
 
 Fixes = List[Tuple[Chunk, Chunk]]
 
@@ -16,12 +16,19 @@ def _get_fixes(chunks: list[Chunk], options: Options) -> Fixes:
     fixes = []
     for chunk in chunks:
         if chunk.inline and not options.align:
+            new_chunk = Chunk(
+                Comment(" " + format_line(c.text), c.lineno, c.hash_col, True)
+                for c in chunk
+            )
             fixes.append((chunk, chunk))
             continue
 
         if chunk.inline and options.align:
             col_max = max(comment.hash_col for comment in chunk)
-            new_chunk = Chunk(Comment(c.text, c.lineno, col_max, True) for c in chunk)
+            new_chunk = Chunk(
+                Comment(" " + format_line(c.text), c.lineno, col_max, True)
+                for c in chunk
+            )
             fixes.append((chunk, new_chunk))
             continue
 
@@ -29,23 +36,22 @@ def _get_fixes(chunks: list[Chunk], options: Options) -> Fixes:
             comment = chunk[0]
             match = re.match(r"^ *-*(.+?)-+ *#?$", comment.text)
             if match:
-                text = format_as_md(match.group(1), wrap="no").strip()
+                text = format_line(match.group(1))
                 text = f" -- {text} ".ljust(options.wrap - len("# #"), "-") + " #"
                 new_comment = Comment(text, comment.lineno, comment.hash_col, False)
                 fixes.append((chunk, Chunk([new_comment])))
                 continue
 
+        # none of the above, so must be simple block comment:
         text = format_as_md(
             text="\n".join(comment.text for comment in chunk),
             number=True,
             wrap=options.wrap - chunk.hash_col - len("# "),
         ).strip()
-
         new_chunk = Chunk(
             Comment(f" {line}".rstrip(), chunk.start_lineno + j, chunk.hash_col, False)
             for j, line in enumerate(text.split("\n"))
         )
-
         fixes.append((chunk, new_chunk))
     return fixes
 
