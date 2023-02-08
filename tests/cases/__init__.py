@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from io import StringIO
 
-from comform.cli import Options
+from comform.cli import FormatOptions
 from comform.comments import Chunk, Comment
 
 
@@ -11,7 +11,7 @@ from comform.comments import Chunk, Comment
 class CaseData:
     test_case_name: str
 
-    options: Options
+    options: FormatOptions
     old_text: str
     old_comments: list[Comment]
     old_chunks: list[Chunk]

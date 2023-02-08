@@ -5,7 +5,7 @@ from typing import Any
 from unittest.mock import Mock, mock_open, patch
 
 from comform import format_comments, run
-from comform.cli import Options
+from comform.cli import FormatOptions
 
 SCRIPT_PRE = """\
 # Block comment line 1
@@ -42,14 +42,8 @@ def test_run(
     mock_print: Mock,  # prevent writing to stdout during test
     mock_open: Mock,
 ) -> None:
-    kwargs: dict[str, Any] = {
-        "check": False,
-        "align": False,
-        "dividers": False,
-        "wrap": 88,
-        "paths": ["file1.py"],
-    }
-    mock_get_options.return_value = Options(**kwargs)
+    kwargs: dict[str, Any] = {"align": False, "dividers": False, "wrap": 88}
+    mock_get_options.return_value = False, FormatOptions(**kwargs), ["file1.py"]
 
     fp1_mock = Mock()
     fp1_mock.__enter__ = Mock(return_value=fp1_mock)
@@ -59,8 +53,7 @@ def test_run(
     mock_fix_text.return_value = LINES_POST, []
     run()
 
-    kwargs["check"] = True
-    mock_get_options.return_value = Options(**kwargs)
+    mock_get_options.return_value = True, FormatOptions(**kwargs), ["file1.py"]
     run()
 
     # Should only have been called on the first run:

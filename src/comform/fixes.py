@@ -5,14 +5,14 @@ from __future__ import annotations
 import re
 from typing import List, TextIO, Tuple
 
-from comform.cli import Options
+from comform.cli import FormatOptions
 from comform.comments import Chunk, Comment, get_comments, to_chunks
 from comform.text import format_as_md, format_line
 
 Fixes = List[Tuple[Chunk, Chunk]]
 
 
-def _get_fixes(chunks: list[Chunk], options: Options) -> Fixes:
+def _get_fixes(chunks: list[Chunk], options: FormatOptions) -> Fixes:
     fixes = []
     for chunk in chunks:
         if chunk.inline and not options.align:
@@ -78,7 +78,7 @@ def _apply_fixes(fixes: Fixes, old_lines: list[str]) -> list[str]:
     return new_lines
 
 
-def fix_text(stream: TextIO, options: Options) -> tuple[list[str], list[str]]:
+def fix_text(stream: TextIO, options: FormatOptions) -> tuple[list[str], list[str]]:
     old_comments = list(get_comments(stream))
     stream.seek(0)
     old_lines = stream.readlines()
