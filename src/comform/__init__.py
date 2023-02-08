@@ -5,14 +5,11 @@ from __future__ import annotations
 import sys
 from io import StringIO
 from pathlib import Path
-from typing import TextIO
+from typing import Iterable, TextIO
 
 from comform.cli import FormatOptions, get_options
 from comform.fixes import fix_text
 from comform.version import __version__
-
-# TODO:
-# * don't change non python files
 
 __all__ = ["format_comments", "run", "__version__"]
 
@@ -53,7 +50,14 @@ def run(args: list[str] | None = None) -> None:
     altered = []
     for path_name in path_names:
         path = Path(path_name)
-        file_paths = path.glob("**/*.py") if path.is_dir() else [path]
+
+        file_paths: Iterable[Path]
+        if path.is_dir():
+            file_paths = path.glob("**/*.py")
+        elif path.suffix == ".py":
+            file_paths = [path]
+        else:
+            file_paths = []
 
         for file in file_paths:
             with open(file, encoding="utf-8") as fp:
