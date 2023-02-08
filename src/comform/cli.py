@@ -5,7 +5,7 @@ from __future__ import annotations
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from dataclasses import dataclass
 
-import comform
+from comform.version import __version__
 
 
 @dataclass(frozen=True)
@@ -26,7 +26,7 @@ def get_options(args: list[str]) -> tuple[bool, FormatOptions, list[str]]:
         "-v",
         action="version",
         help="print the version number",
-        version=comform.__version__,
+        version=__version__,
     )
     parser.add_argument(
         "--check", "-c", action="store_true", help="do not write to files."

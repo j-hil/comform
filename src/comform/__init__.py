@@ -9,12 +9,12 @@ from typing import TextIO
 
 from comform.cli import FormatOptions, get_options
 from comform.fixes import fix_text
-
-__version__ = "0.0.3"
+from comform.version import __version__
 
 # TODO:
 # * don't change non python files
-# * fix circular import
+
+__all__ = ["format_comments", "run", "__version__"]
 
 
 def format_comments(

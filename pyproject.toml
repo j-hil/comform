@@ -54,7 +54,7 @@ Homepage = "https://j-hil@github.com/j-hil/comform"
 comform = "comform.__main__:main"
 
 [tool.hatch.version]
-path = "src/comform/__init__.py"
+path = "src/comform/version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/comform"]
