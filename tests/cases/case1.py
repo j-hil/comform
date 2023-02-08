@@ -1,11 +1,11 @@
-from comform.cli import Options
+from comform.cli import FormatOptions
 from comform.comments import Chunk, Comment
 from tests.cases import CaseData
 
 # Should cover all the same tests as those in tests.legacy
 _NAME = "Legacy Test Case"
 
-_OPTIONS = Options(True, False, True, 88, [])
+_OPTIONS = FormatOptions(False, True, 88)
 
 _OLD_TEXT = """\
 # Block comment line 1

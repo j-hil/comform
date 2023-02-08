@@ -9,16 +9,13 @@ import comform
 
 
 @dataclass(frozen=True)
-class Options:
-    check: bool
+class FormatOptions:
     align: bool
     dividers: bool
     wrap: int
-    # TODO: remove paths
-    paths: list[str]
 
 
-def get_options(args: list[str]) -> Options:
+def get_options(args: list[str]) -> tuple[bool, FormatOptions, list[str]]:
     parser = ArgumentParser(
         prog="comform",
         description="Python Comment Conformity Formatter",
@@ -53,10 +50,8 @@ def get_options(args: list[str]) -> Options:
     )
 
     parsed_args = parser.parse_args(args)
-    return Options(
+    return (
         parsed_args.check,
-        parsed_args.align,
-        parsed_args.dividers,
-        parsed_args.wrap,
+        FormatOptions(parsed_args.align, parsed_args.dividers, parsed_args.wrap),
         parsed_args.paths,
     )

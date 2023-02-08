@@ -7,19 +7,18 @@ from io import StringIO
 from pathlib import Path
 from typing import TextIO
 
-from comform.cli import Options, get_options
+from comform.cli import FormatOptions, get_options
 from comform.fixes import fix_text
 
 __version__ = "0.0.3"
 
 # TODO:
-# * other todos
-# * format one line comments with mdformat
 # * don't change non python files
+# * fix circular import
 
 
 def format_comments(
-    # NOTE: keep in line with `comform.cli`
+    # NOTE: keep in line with `comform.cli.FormatOptions`
     text: str | TextIO,
     align: bool = False,
     dividers: bool = False,
@@ -35,7 +34,7 @@ def format_comments(
     """
     if isinstance(text, str):
         text = StringIO(text)
-    options = Options(False, align, dividers, wrap, [])
+    options = FormatOptions(align, dividers, wrap)
     new_lines, _ = fix_text(text, options)
     return new_lines
 
@@ -49,10 +48,10 @@ def run(args: list[str] | None = None) -> None:
     if args is None:
         args = sys.argv[1:]
 
-    options = get_options(args)
+    check, options, path_names = get_options(args)
 
     altered = []
-    for path_name in options.paths:
+    for path_name in path_names:
         path = Path(path_name)
         file_paths = path.glob("**/*.py") if path.is_dir() else [path]
 
@@ -64,12 +63,12 @@ def run(args: list[str] | None = None) -> None:
                 continue
             altered.append(str(file))
 
-            if options.check:
+            if check:
                 print(f"*** Changes to {path_name}:", "-" * 99, sep="\n")
                 print(*new_lines, "\n")
                 continue
             with open(file, "w", encoding="utf-8") as fp:
                 fp.writelines(new_lines)
 
-    header = "*** Altered Files:" if not options.check else "*** Failed files:"
+    header = "*** Altered Files:" if not check else "*** Failed files:"
     print(header, *(altered if altered else ["\b(None)"]), sep="\n")

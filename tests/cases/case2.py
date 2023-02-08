@@ -1,10 +1,10 @@
-from comform.cli import Options
+from comform.cli import FormatOptions
 from comform.comments import Chunk, Comment
 from tests.cases import CaseData
 
 _NAME = "Check inline comments align."
 
-_OPTIONS = Options(check=True, align=True, dividers=False, wrap=88, paths=[])
+_OPTIONS = FormatOptions(align=True, dividers=False, wrap=88)
 
 _OLD_TEXT = """\
 print("hello, world")  # inline comment 1
