@@ -13,7 +13,7 @@ PATH_TO_POST = Path(__file__).parent / "example_post.py"
 
 
 def test_comform_example() -> None:
-    temp_file = Path(tempfile.NamedTemporaryFile(delete=False).name)
+    temp_file = Path(tempfile.NamedTemporaryFile(delete=False, suffix=".py").name)
     try:
         with open(PATH_TO_PRE) as pre_fp:
             old_text = pre_fp.read()
