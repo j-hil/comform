@@ -1,11 +1,10 @@
 from comform.cli import FormatOptions
 from comform.comments import Chunk, Comment
-from tests.cases import CaseData
 
 # Should cover all the same tests as those in tests.legacy
 _NAME = "Legacy Test Case"
 
-_OPTIONS = FormatOptions(False, True, 88)
+_OPTIONS = FormatOptions(align=False, dividers=True, wrap=88)
 
 _OLD_TEXT = """\
 # Block comment line 1
@@ -46,6 +45,4 @@ _NEW_CHUNKS = [
     Chunk([_OLD_COMMENTS[4]]),
 ]
 
-CASE = CaseData(
-    _NAME, _OPTIONS, _OLD_TEXT, _OLD_COMMENTS, _OLD_CHUNKS, _NEW_CHUNKS, _NEW_TEXT
-)
+DATA = (_NAME, _OPTIONS, _OLD_TEXT, _OLD_COMMENTS, _OLD_CHUNKS, _NEW_CHUNKS, _NEW_TEXT)
