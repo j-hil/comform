@@ -4,22 +4,60 @@ For a number of small examples we test (nearly) every function of the `comform` 
 This allows for quick and easy identification of exactly which cases are failing, and/or
 which functions have been broken.
 
-The information for each test case `N` is in `tests.case.caseN`. Adding a new test case
-is simple - copy an existing case and edit the `_*` variables as appropriate. Then
-extend the `CASES_MODULES` constant in this file.
+Information for each test case `N` is in `tests.case.caseN`. Adding a new test case is
+as simple as creating a new `tests.case.caseN` module in a similar format to the others.
 """
+
+
 from __future__ import annotations
 
+from dataclasses import dataclass
+from importlib import import_module
 from io import StringIO
+from typing import Generator
 
 import pytest
 
-from comform.comments import get_comments, to_chunks
+from comform.cli import FormatOptions
+from comform.comments import Chunk, Comment, get_comments, to_chunks
 from comform.fixes import _apply_fixes, _get_fixes, fix_text
-from tests.cases import CaseData, case1, case2, case3
 
-CASES_MODULES = [case1, case2, case3]
-pytestmark = pytest.mark.parametrize("data", [case.CASE for case in CASES_MODULES])
+
+@dataclass
+class CaseData:
+    # metadata
+    num: int
+    name: str
+    # data
+    options: FormatOptions
+    old_text: str
+    old_comments: list[Comment]
+    old_chunks: list[Chunk]
+    new_chunks: list[Chunk]
+    new_text: str
+
+    def __post_init__(self) -> None:
+        self.old_lines = StringIO(self.old_text).readlines()
+        self.new_lines = StringIO(self.new_text).readlines()
+        self.fixes = list(zip(self.old_chunks, self.new_chunks))
+
+
+def get_cases() -> Generator[CaseData, None, None]:
+    n = 0
+    while True:
+        try:
+            module = import_module(f"tests.cases.case{n}")
+            yield CaseData(n, *module.DATA)
+        except ModuleNotFoundError:
+            return
+        n += 1
+
+
+# TODO: cases 0 & 4 must be fixed
+CASES = [case for case in get_cases() if case.num not in [0, 4]]
+pytestmark = pytest.mark.parametrize(
+    argnames="data", argvalues=CASES, ids=[f"{case.num}. {case.name}" for case in CASES]
+)
 
 
 def test_get_comments(data: CaseData) -> None:
@@ -46,7 +84,3 @@ def test_fix_text(data: CaseData) -> None:
     actual_new_lines, actual_old_lines = fix_text(StringIO(data.old_text), data.options)
     assert actual_new_lines == data.new_lines
     assert actual_old_lines == data.old_lines
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

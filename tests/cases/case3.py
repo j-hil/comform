@@ -1,6 +1,5 @@
 from comform.cli import FormatOptions
 from comform.comments import Chunk, Comment
-from tests.cases import CaseData
 
 _NAME = "Check multiline strings are kept."
 
@@ -20,6 +19,4 @@ _OLD_CHUNKS = [Chunk(_OLD_COMMENTS)]
 
 _NEW_CHUNKS = _OLD_CHUNKS
 
-CASE = CaseData(
-    _NAME, _OPTIONS, _OLD_TEXT, _OLD_COMMENTS, _OLD_CHUNKS, _NEW_CHUNKS, _NEW_TEXT
-)
+DATA = _NAME, _OPTIONS, _OLD_TEXT, _OLD_COMMENTS, _OLD_CHUNKS, _NEW_CHUNKS, _NEW_TEXT

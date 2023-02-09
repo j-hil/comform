@@ -1,6 +1,5 @@
 from comform.cli import FormatOptions
 from comform.comments import Chunk, Comment
-from tests.cases import CaseData
 
 _NAME = "Check inline comments align."
 
@@ -32,6 +31,4 @@ _NEW_CHUNKS = [
     )
 ]
 
-CASE = CaseData(
-    _NAME, _OPTIONS, _OLD_TEXT, _OLD_COMMENTS, _OLD_CHUNKS, _NEW_CHUNKS, _NEW_TEXT
-)
+DATA = _NAME, _OPTIONS, _OLD_TEXT, _OLD_COMMENTS, _OLD_CHUNKS, _NEW_CHUNKS, _NEW_TEXT
