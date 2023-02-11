@@ -6,6 +6,8 @@ which functions have been broken.
 
 Information for each test case `N` is in `tests.case.caseN`. Adding a new test case is
 as simple as creating a new `tests.case.caseN` module in a similar format to the others.
+
+Acts as unit tests for `fixes` and `comments` modules.
 """
 
 

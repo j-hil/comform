@@ -7,7 +7,7 @@ from typing import List, TextIO, Tuple
 
 from comform.cli import FormatOptions
 from comform.comments import Chunk, Comment, get_comments, to_chunks
-from comform.text import format_as_md, format_line
+from comform.utils import format_as_md, format_line, zip_padded
 
 Fixes = List[Tuple[Chunk, Chunk]]
 
@@ -47,7 +47,7 @@ def _get_fixes(chunks: list[Chunk], options: FormatOptions) -> Fixes:
             text="\n".join(comment.text for comment in chunk),
             number=True,
             wrap=options.wrap - chunk.hash_col - len("# "),
-        ).strip()
+        )
         new_chunk = Chunk(
             Comment(f" {line}".rstrip(), chunk.start_lineno + j, chunk.hash_col, False)
             for j, line in enumerate(text.split("\n"))
@@ -66,10 +66,15 @@ def _apply_fixes(fixes: Fixes, old_lines: list[str]) -> list[str]:
 
         new_lines.extend(old_lines[prev_end_lineno : old_chunk.start_lineno - 1])
 
-        chunk_code_lines = old_lines[old_chunk.start_lineno - 1 : end_lineno]
         new_lines.extend(
-            line[: old_c.hash_col].ljust(new_c.hash_col) + f"#{new_c.text}\n"
-            for line, old_c, new_c in zip(chunk_code_lines, old_chunk, new_chunk)
+            line[:old_hash_col].ljust(new_comment.hash_col) + f"#{new_comment.text}\n"
+            for line, old_hash_col, new_comment in zip_padded(
+                old_lines[old_chunk.start_lineno - 1 : end_lineno],
+                (c.hash_col for c in old_chunk),
+                new_chunk,
+                fillvals=("", 0, None),
+            )
+            if new_comment is not None
         )
 
         prev_end_lineno = end_lineno
