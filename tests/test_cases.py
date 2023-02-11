@@ -53,8 +53,7 @@ def get_cases() -> Generator[CaseData, None, None]:
         n += 1
 
 
-# TODO: cases 0 & 4 must be fixed
-CASES = [case for case in get_cases() if case.num not in [0, 4]]
+CASES = list(get_cases())
 pytestmark = pytest.mark.parametrize(
     argnames="data", argvalues=CASES, ids=[f"{case.num}. {case.name}" for case in CASES]
 )
