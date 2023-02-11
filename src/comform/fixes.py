@@ -65,16 +65,15 @@ def _apply_fixes(fixes: Fixes, old_lines: list[str]) -> list[str]:
         end_lineno = old_chunk[-1].lineno
 
         new_lines.extend(old_lines[prev_end_lineno : old_chunk.start_lineno - 1])
-        if not old_chunk.inline:
-            new_lines.extend(f"#{comment.text}\n" for comment in new_chunk)
-        else:
-            chunk_code_lines = old_lines[old_chunk.start_lineno - 1 : end_lineno]
-            new_lines.extend(
-                line[: old_c.hash_col].ljust(new_c.hash_col) + f"#{new_c.text}\n"
-                for line, old_c, new_c in zip(chunk_code_lines, old_chunk, new_chunk)
-            )
+
+        chunk_code_lines = old_lines[old_chunk.start_lineno - 1 : end_lineno]
+        new_lines.extend(
+            line[: old_c.hash_col].ljust(new_c.hash_col) + f"#{new_c.text}\n"
+            for line, old_c, new_c in zip(chunk_code_lines, old_chunk, new_chunk)
+        )
 
         prev_end_lineno = end_lineno
+    new_lines.extend(old_lines[prev_end_lineno:])
     return new_lines
 
 

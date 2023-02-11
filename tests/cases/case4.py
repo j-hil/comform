@@ -24,7 +24,7 @@ if True:
     pass
 """
 
-_OLD_CHUNKS = [_OLD_COMMENTS]
+_OLD_CHUNKS = [Chunk(_OLD_COMMENTS)]
 
 _NEW_CHUNKS = [
     Chunk([Comment(" 67890 2345", 2, 4, False), Comment(" 78901 line 2", 3, 4, False)])
