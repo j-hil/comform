@@ -64,7 +64,7 @@ def format_as_md(
 
 
 def format_line(text: str) -> str:
-    return format_as_md(text, wrap="no").strip()
+    return format_as_md(text.strip(), wrap="no").strip()
 
 
 def gitignore_matches(path: Path) -> bool:
