@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from comform.cli import FormatOptions
-from comform.comments import Chunk
+from comform.comments import Chunk, Comment
 
 _NAME = "No comment case."
 
@@ -11,7 +11,7 @@ _OLD_TEXT = """\
 print("hello, world")
 """
 
-_OLD_COMMENTS: list[Chunk] = []
+_OLD_COMMENTS: list[Comment] = []
 
 _NEW_TEXT = _OLD_TEXT
 

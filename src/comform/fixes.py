@@ -20,7 +20,7 @@ def _get_fixes(chunks: list[Chunk], options: FormatOptions) -> Fixes:
                 Comment(" " + format_line(c.text), c.lineno, c.hash_col, True)
                 for c in chunk
             )
-            fixes.append((chunk, chunk))
+            fixes.append((chunk, new_chunk))
             continue
 
         if chunk.inline and options.align:

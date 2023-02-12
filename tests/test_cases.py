@@ -82,6 +82,7 @@ def test_apply_fixes(data: CaseData) -> None:
 
 
 def test_fix_text(data: CaseData) -> None:
+    # tests the above functions strung together; expect 1 failure above => this fails.
     actual_new_lines, actual_old_lines = fix_text(StringIO(data.old_text), data.options)
     assert actual_new_lines == data.new_lines
     assert actual_old_lines == data.old_lines
