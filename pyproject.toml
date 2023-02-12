@@ -18,7 +18,11 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dynamic = ["version"]
-dependencies = ["mdformat>=0.7.16, <1", "tomli>=2, <3; python_version<'3.11'"]
+dependencies = [
+    "mdformat>=0.7.16, <1",
+    "tomli>=2, <3; python_version<'3.11'",
+    "pathspec>=0.11, <1",
+]
 
 [project.optional-dependencies]
 # maximum requirements for development

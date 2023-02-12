@@ -1,41 +1,47 @@
 """Orphan utility functions.
 
-For functions which are not explicitly part of the project structure but which are used
-non-the-less. Includes:
+For functions which are sufficiently general to not really be part of the project
+structure (namely they depend on no other code in `comform`):
 - `zip_padded`; a generalization of `zip_longest`
 - `format_as_md` & `format_line`; both wrappers around `mdformat.text`
+-
 """
 
 from __future__ import annotations
 
 from itertools import zip_longest
+from pathlib import Path
 from typing import Any, Generator, Iterable, Literal, TypeVar, overload
 
 import mdformat
+from pathspec import PathSpec
+
+_P = Path.cwd() / ".gitignore"
+_GITIGNORE = PathSpec.from_lines("gitwildmatch", _P.open() if _P.is_file() else [])
 
 _SENTINEL = object()
 
-T = TypeVar("T")
-U = TypeVar("U")
-V = TypeVar("V")
+_T = TypeVar("_T")
+_U = TypeVar("_U")
+_V = TypeVar("_V")
 
 
 @overload
 def zip_padded(
-    arg1: Iterable[T],
-    arg2: Iterable[U],
-    arg3: Iterable[V],
+    arg1: Iterable[_T],
+    arg2: Iterable[_U],
+    arg3: Iterable[_V],
     /,
     *,
-    fillvals: tuple[T, U, V],
-) -> Generator[tuple[T, U, V], None, None]:
+    fillvals: tuple[_T, _U, _V],
+) -> Generator[tuple[_T, _U, _V], None, None]:
     ...
 
 
 @overload
 def zip_padded(
-    arg1: Iterable[T], arg2: Iterable[U], /, *, fillvals: tuple[T, U]
-) -> Generator[tuple[T, U], None, None]:
+    arg1: Iterable[_T], arg2: Iterable[_U], /, *, fillvals: tuple[_T, _U]
+) -> Generator[tuple[_T, _U], None, None]:
     ...
 
 
@@ -59,3 +65,7 @@ def format_as_md(
 
 def format_line(text: str) -> str:
     return format_as_md(text, wrap="no").strip()
+
+
+def gitignore_matches(path: Path) -> bool:
+    return _GITIGNORE.match_file(path.as_posix())
