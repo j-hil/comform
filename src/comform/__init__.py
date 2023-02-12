@@ -9,6 +9,7 @@ from typing import Iterable, TextIO
 
 from comform.cli import FormatOptions, get_options
 from comform.fixes import fix_text
+from comform.utils import gitignore_matches
 from comform.version import __version__
 
 __all__ = ["format_comments", "run", "__version__"]
@@ -36,6 +37,15 @@ def format_comments(
     return new_lines
 
 
+def _get_target_paths(path_name: str) -> Iterable[Path]:
+    path = Path(path_name)
+    if path.is_dir():
+        return path.glob("**/*.py")
+    if path.suffix == ".py":
+        return [path]
+    return []
+
+
 def run(args: list[str] | None = None) -> None:
     """Entry point for `comform`.
 
@@ -49,29 +59,22 @@ def run(args: list[str] | None = None) -> None:
 
     altered = []
     for path_name in path_names:
-        path = Path(path_name)
+        for path in _get_target_paths(path_name):
+            if gitignore_matches(path):
+                continue
 
-        file_paths: Iterable[Path]
-        if path.is_dir():
-            file_paths = path.glob("**/*.py")
-        elif path.suffix == ".py":
-            file_paths = [path]
-        else:
-            file_paths = []
-
-        for file in file_paths:
-            with open(file, encoding="utf-8") as fp:
+            with open(path, encoding="utf-8") as fp:
                 new_lines, old_lines = fix_text(fp, options)
 
             if new_lines == old_lines:
                 continue
-            altered.append(str(file))
+            altered.append(str(path))
 
             if check:
                 print(f"*** Changes to {path_name}:", "-" * 99, sep="\n")
                 print(*new_lines, "\n")
                 continue
-            with open(file, "w", encoding="utf-8") as fp:
+            with open(path, "w", encoding="utf-8") as fp:
                 fp.writelines(new_lines)
 
     header = "*** Altered Files:" if not check else "*** Failed files:"
