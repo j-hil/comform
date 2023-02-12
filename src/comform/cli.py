@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 
+import sys
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from dataclasses import dataclass
+from pathlib import Path
 
 from comform.version import __version__
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 
 @dataclass(frozen=True)
@@ -40,7 +47,7 @@ def get_options(args: list[str]) -> tuple[bool, FormatOptions, list[str]]:
     parser.add_argument(
         "--wrap",
         "-w",
-        default=88,
+        default=None,
         type=int,
         help="Column at which to wrap comments",
         metavar="N",
@@ -48,10 +55,19 @@ def get_options(args: list[str]) -> tuple[bool, FormatOptions, list[str]]:
     parser.add_argument(
         "paths", nargs="+", help="folders/files to re-format (recursively)"
     )
+    cmd_line_args = parser.parse_args(args)
 
-    parsed_args = parser.parse_args(args)
+    config_path = Path.cwd() / "pyproject.toml"
+    if config_path.is_file():
+        with open(config_path, "rb") as fp:
+            config_args = tomllib.load(fp).get("tool", {}).get("comform", {})
+
     return (
-        parsed_args.check,
-        FormatOptions(parsed_args.align, parsed_args.dividers, parsed_args.wrap),
-        parsed_args.paths,
+        cmd_line_args.check or config_args.get("check", False),
+        FormatOptions(
+            cmd_line_args.align or config_args.get("align", False),
+            cmd_line_args.dividers or config_args.get("dividers", False),
+            cmd_line_args.wrap if cmd_line_args.wrap else config_args.get("wrap", 88),
+        ),
+        cmd_line_args.paths,
     )
