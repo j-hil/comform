@@ -15,10 +15,9 @@ markdown has drawbacks, but I've found these to be outweighed.
 ## Usage
 
 This package can be installed from PyPI as usual via `pip install comform` and is meant
-to be used as a command line tool. It can also be used as a `pre-commit` hook, but only
-with a local copy installed (known issue, see
-[here](https://github.com/j-hil/comform/issues/2)). Whichever way `comform` is used I
-recommend running `black` first; it was developed for this use-case.
+to be used as a command line tool. It can also be used as a `pre-commit` hook. Whichever
+way `comform` is used I recommend running `black` first; it was mainly developed for
+this use-case.
 
 The command line interface is:
 
@@ -39,6 +38,16 @@ wrap = 88
 
 `check`, `align` and `dividers` work if they are set in the CLI **or** the config. If
 `wrap` is set in both then the CLI takes priority.
+
+To use `comform` as a `pre-commit` hook add the following to your
+`.pre-commit-config.yaml`:
+
+```yaml
+  - repo: https://github.com/j-hil/comform
+    rev: 0.1.0
+    hooks:
+      - id: comform
+```
 
 ## Development
 
