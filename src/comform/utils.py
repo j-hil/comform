@@ -9,18 +9,41 @@ non-the-less. Includes:
 from __future__ import annotations
 
 from itertools import zip_longest
-from typing import Any, Generator, Iterable, Literal
+from typing import Any, Generator, Iterable, Literal, TypeVar, overload
 
 import mdformat
 
 _SENTINEL = object()
 
+T = TypeVar("T")
+U = TypeVar("U")
+V = TypeVar("V")
+
+
+@overload
+def zip_padded(
+    arg1: Iterable[T],
+    arg2: Iterable[U],
+    arg3: Iterable[V],
+    /,
+    *,
+    fillvals: tuple[T, U, V],
+) -> Generator[tuple[T, U, V], None, None]:
+    ...
+
+
+@overload
+def zip_padded(
+    arg1: Iterable[T], arg2: Iterable[U], /, *, fillvals: tuple[T, U]
+) -> Generator[tuple[T, U], None, None]:
+    ...
+
 
 def zip_padded(
     *args: Iterable[Any], fillvals: Iterable[Any]
-) -> Generator[list[Any], None, None]:
+) -> Generator[tuple[Any, ...], None, None]:
     for row in zip_longest(*args, fillvalue=_SENTINEL):
-        yield tuple(v if v is not _SENTINEL else fillvals[i] for i, v in enumerate(row))
+        yield tuple(v if v is not _SENTINEL else f for v, f in zip(row, fillvals))
 
 
 def format_as_md(
