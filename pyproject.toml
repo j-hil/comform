@@ -24,26 +24,26 @@ dependencies = ["mdformat>=0.7.16, <1"]
 # maximum requirements for development
 dev = [
     # testing
-    "pytest>=7.2.0, <8",
-    "coverage[toml]>=6.5.0, < 7",
+    "pytest>=7.2, <8",
+    "coverage[toml]>=7, <8",
     # typing
-    "mypy>=0.971, <1",
+    "mypy>=1, <2",
     # autoformatting
-    "pre-commit>=2.20.0, <3",
-    "black>=22.10.0, <23",
-    "isort>=5.10.1, <6",
-    "autoflake>=1.7.7, <2",
+    "pre-commit>=3, <4",
+    "black>=23, <24",
+    "isort>=5.12, <6",
+    "autoflake>=2, <3",
     "pydocstringformatter>=0.7.2, <1",
     # linting
-    "pylint>=2.15.2, <3",
-    "pydocstyle[toml]>=6.1.1, <7",
-    "Flake8-pyproject>=1.2.0, <2",
+    "pylint>=2.16, <3",
+    "pydocstyle[toml]>=6.3, <7",
+    "Flake8-pyproject>=1.2, <2",
     # build and release
     "build>=0.9.0, <1",
     "twine>=4.0.1, <5",
     # ipython
-    "ipykernel>=6.17.0, <7",
-    "ipython>=8.8.0, <9",
+    "ipykernel>=6.21, <7",
+    "ipython>=8.10, <9",
 ]
 
 
@@ -58,6 +58,7 @@ path = "src/comform/version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/comform"]
+
 
 [tool.coverage.run]
 branch = true
@@ -108,8 +109,9 @@ disable = [
 [tool.pylint.reports]
 output-format = "colorized"
 
+
 [tool.flake8]
-# pyproject.toml support from package Flake8-pyproject
+# pyproject.toml support from package `Flake8-pyproject`
 extend-ignore = [
     # code  # what; why
     "E203", # whitespace before ':'; compatability with black
@@ -118,7 +120,6 @@ extend-ignore = [
     "E501", # line too long; handled by pylint
 ]
 max-line-length = 88
-
 
 [tool.pydocstyle]
 ignore = [
