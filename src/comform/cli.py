@@ -61,13 +61,15 @@ def get_options(args: list[str]) -> tuple[bool, FormatOptions, list[str]]:
     if config_path.is_file():
         with open(config_path, "rb") as fp:
             config_args = tomllib.load(fp).get("tool", {}).get("comform", {})
+    else:
+        config_args = {}
 
     return (
         cmd_line_args.check or config_args.get("check", False),
         FormatOptions(
             cmd_line_args.align or config_args.get("align", False),
             cmd_line_args.dividers or config_args.get("dividers", False),
-            cmd_line_args.wrap if cmd_line_args.wrap else config_args.get("wrap", 88),
+            cmd_line_args.wrap or config_args.get("wrap", 88),
         ),
         cmd_line_args.paths,
     )
