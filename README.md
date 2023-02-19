@@ -36,15 +36,15 @@ dividers = false
 wrap = 88
 ```
 
-`check`, `align` and `dividers` work if they are set in the CLI **or** the config. If
-`wrap` is set in both then the CLI takes priority.
+`check`, `align` and `dividers` are considered enabled if they are set in the CLI **or**
+the config. If `wrap` is set in both then the CLI takes priority.
 
 To use `comform` as a `pre-commit` hook add the following to your
 `.pre-commit-config.yaml`:
 
 ```yaml
   - repo: https://github.com/j-hil/comform
-    rev: 0.1.0
+    rev: 0.1.1
     hooks:
       - id: comform
 ```

@@ -1,13 +1,13 @@
 """Unit tests for `comform.cli`."""
 from __future__ import annotations
 
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from comform.cli import get_options
 
 
 @patch("comform.cli.Path")
-def test_get_options_no_config(mocked_path_class) -> None:
+def test_get_options_no_config(mocked_path_class: Mock) -> None:
     """Test getting options from CLI, no `pyproject.toml` present."""
 
     # Ensure a config is not accessed:
@@ -34,7 +34,7 @@ def test_get_options_no_config(mocked_path_class) -> None:
 @patch("comform.cli.tomllib.load")
 @patch("comform.cli.open")
 def test_get_options_with_empty_config(
-    mocked_open, mocked_tomllib_load, mocked_path_class
+    mocked_open: Mock, mocked_tomllib_load: Mock, mocked_path_class: Mock
 ) -> None:
     """Test when `pyproject.toml` present, but no `tool.comform` section."""
 
@@ -62,7 +62,7 @@ def test_get_options_with_empty_config(
 @patch("comform.cli.tomllib.load")
 @patch("comform.cli.open")
 def test_get_options_with_config(
-    mocked_open, mocked_tomllib_load, mocked_path_class
+    mocked_open: Mock, mocked_tomllib_load: Mock, mocked_path_class: Mock
 ) -> None:
     """Test when `pyproject.toml` present, but no `tool.comform` section."""
 
